@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Allow external packages for Transformers.js
+  serverExternalPackages: ['@huggingface/transformers'],
+  // Enable turbopack with empty config
+  turbopack: {},
 };
 
 export default nextConfig;
