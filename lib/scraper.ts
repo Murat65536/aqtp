@@ -3,7 +3,6 @@ import * as cheerio from 'cheerio';
 
 export interface Topic {
   title: string;
-  url: string;
   content: string;
 }
 
@@ -29,7 +28,7 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
     const $ = cheerio.load(response.data);
     const topics: Topic[] = [];
 
-    // Find all article links matching the pattern /you-gotta-know/*.html
+    const topicPromises: Promise<void>[] = [];
     $('a[href*="/you-gotta-know/"]').each((_, element) => {
       const href = $(element).attr('href');
       const text = $(element).text().trim();
@@ -37,15 +36,20 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
       if (href && href.match(/\/you-gotta-know\/.*\.html/)) {
         const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
         
-        if (text && !topics.some(t => t.url === fullUrl)) {
-          topics.push({
-            title: text,
-            url: fullUrl,
-            content: ''
-          });
+        if (text) {
+          topicPromises.push(
+            scrapeTopicContent(fullUrl).then(content => {
+              topics.push({
+                title: text.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()),
+                content: content
+              });
+            })
+          );
         }
       }
     });
+
+    await Promise.all(topicPromises);
 
     return topics;
   } catch (error) {

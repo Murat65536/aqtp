@@ -3,7 +3,7 @@ import { generateSingleQuestion } from '@/lib/llm';
 
 export async function POST(request: Request) {
   try {
-    const { topicContent, topicTitle } = await request.json();
+    const { topicContent, topicTitle, apiKey, baseURL } = await request.json();
     
     if (!topicContent || !topicTitle) {
       return NextResponse.json(
@@ -14,7 +14,9 @@ export async function POST(request: Request) {
     
     const question = await generateSingleQuestion(
       topicContent,
-      topicTitle
+      topicTitle,
+      apiKey,
+      baseURL
     );
     
     return NextResponse.json({ question });

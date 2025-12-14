@@ -9,10 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.8.1",
     "axios": "^1.13.2",
     "cheerio": "^1.1.2",
     "next": "16.0.10",
+    "openai": "^6.10.0",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },

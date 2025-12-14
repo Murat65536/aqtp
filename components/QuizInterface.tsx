@@ -5,6 +5,7 @@ import { useState } from 'react';
 interface Question {
   question: string;
   answer: string;
+  context: string;
 }
 
 interface Topic {
@@ -15,9 +16,11 @@ interface Topic {
 interface QuizInterfaceProps {
   topic: Topic;
   onBack: () => void;
+  baseURL: string;
+  apiKey: string;
 }
 
-export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
+export default function QuizInterface({ topic, onBack, baseURL, apiKey }: QuizInterfaceProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -34,6 +37,8 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
         body: JSON.stringify({
           topicContent: topic.content,
           topicTitle: topic.title,
+          apiKey,
+          baseURL,
         }),
       });
 
@@ -48,7 +53,6 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
       }
     } catch (error) {
       console.error('Error generating question:', error);
-      alert('Failed to generate question. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -85,11 +89,11 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
           ← Back to Topics
         </button>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">{topic.title}</h2>
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+          <h2 className="text-3xl font-bold text-gray-100 mb-4">{topic.title}</h2>
 
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg max-h-64 overflow-y-auto">
-            <p className="text-gray-700 whitespace-pre-wrap">
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-h-64 overflow-y-auto">
+            <p className="text-gray-200 whitespace-pre-wrap">
               {topic.content}
             </p>
           </div>
@@ -125,9 +129,9 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
         >
           ← Back to Topics
         </button>
-        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Generating question with AI...</p>
+          <p className="text-gray-300">Generating question with AI...</p>
         </div>
       </div>
     );
@@ -142,18 +146,18 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
         ← Back to Topics
       </button>
 
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">{topic.title}</h2>
-          <span className="text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-100">{topic.title}</h2>
+          <span className="text-gray-300">
             Question {currentQuestionIndex + 1}
           </span>
         </div>
 
         <div className="mb-8">
-          <div className="bg-blue-50 p-6 rounded-lg mb-4">
-            <h3 className="text-xl font-semibold text-gray-800 mb-2">Question:</h3>
-            <p className="text-gray-700 text-lg">{currentQuestion.question}</p>
+          <div className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg mb-4">
+            <h3 className="text-xl font-semibold text-gray-100 mb-2">Question:</h3>
+            <p className="text-gray-200 text-lg">{currentQuestion.question}</p>
           </div>
 
           <textarea
@@ -174,13 +178,13 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
 
           {showAnswer && (
             <>
-              <div className="mt-4 p-6 bg-green-50 rounded-lg">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Answer:</h3>
-                <p className="text-gray-700">{currentQuestion.answer}</p>
+              <div className="mt-4 p-6 bg-green-50 dark:bg-gray-800 rounded-lg">
+                <h3 className="text-xl font-semibold text-gray-100 mb-2">Answer:</h3>
+                <p className="text-gray-100">{currentQuestion.answer}</p>
               </div>
-              <div className="mt-4 p-6 bg-blue-50 rounded-lg">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">Context:</h3>
-                <p className="text-gray-700">{currentQuestion.answer}</p>
+              <div className="mt-4 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg">
+                <h3 className="text-xl font-semibold text-gray-100 mb-2">Context:</h3>
+                <p className="text-gray-100">{currentQuestion.context}</p>
               </div>
             </>
           )}
@@ -190,7 +194,7 @@ export default function QuizInterface({ topic, onBack }: QuizInterfaceProps) {
           <button
             onClick={handlePreviousQuestion}
             disabled={currentQuestionIndex === 0}
-            className="flex-1 bg-gray-200 text-gray-800 py-3 px-6 rounded-lg font-semibold hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 bg-gray-700 text-gray-100 py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 disabled:bg-gray-900 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
           >
             Previous
           </button>

@@ -12,26 +12,46 @@ interface Topic {
 
 export default function Home() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
+    const [apiKey, setApiKey] = useState('');
+  const [baseURL, setBaseURL] = useState('https://models.inference.ai.azure.com');
+
+
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
       <div className="max-w-7xl mx-auto">
-        <header className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-4">
-            NAQT Quiz Practice
-          </h1>
-          <p className="text-xl text-gray-700">
-            Practice with AI-generated questions from NAQT &quot;You Gotta Know&quot; topics
-          </p>
-          <p className="text-sm text-gray-600 mt-2">
-            Powered by locally-hosted AI
-          </p>
-        </header>
+        <div className="mb-8 flex flex-col items-center">
+ 
+          <label htmlFor="api-key" className="mb-2 font-semibold text-gray-700">Enter your OpenAI API Key:</label>
+          <input
+            id="api-key"
+            type="password"
+            value={apiKey}
+            onChange={e => setApiKey(e.target.value)}
+            className="w-full max-w-md p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-4"
+            placeholder="sk-..."
+            autoComplete="off"
+          />
 
+          <label htmlFor="base-url" className="mb-2 font-semibold text-gray-700 mt-4">Enter your OpenAI Base URL:</label>
+          <input
+            id="base-url"
+            type="text"
+            value={baseURL}
+            onChange={e => {
+              setBaseURL(e.target.value);
+            }}
+            className="w-full max-w-md p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+            placeholder="https://api.openai.com"
+            autoComplete="off"
+          />
+        </div>
         {selectedTopic ? (
           <QuizInterface 
             topic={selectedTopic} 
             onBack={() => setSelectedTopic(null)} 
+            baseURL={baseURL}
+            apiKey={apiKey}
           />
         ) : (
           <TopicSelector onTopicSelect={setSelectedTopic} />

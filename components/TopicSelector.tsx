@@ -37,14 +37,14 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
     return (
       <div className="text-center p-8">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading NAQT topics...</p>
+        <p className="mt-4 text-gray-300">Loading NAQT topics...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center p-8 text-red-600">
+      <div className="text-center p-8 text-red-400">
         <p>Error: {error}</p>
       </div>
     );
@@ -56,9 +56,9 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
         <button
           key={index}
           onClick={() => onTopicSelect(topic)}
-          className="p-4 bg-white border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200 text-left"
+          className="p-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200 text-left"
         >
-          <h3 className="font-semibold text-gray-800 line-clamp-2">
+          <h3 className="font-semibold text-gray-100 line-clamp-2">
             {topic.title}
           </h3>
         </button>
