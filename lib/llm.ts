@@ -9,13 +9,21 @@ function getOpenAI(apiKey: string, baseURL: string) {
   });
 }
 
-const OPENAI_MODEL = "gpt-4o-mini";
+export const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
+
+export async function fetchAvailableModels(apiKey: string, baseURL: string): Promise<string[]> {
+  const openai = getOpenAI(apiKey, baseURL);
+  const result = await openai.models.list();
+  // body is a protected field, so result must be cast to any.
+  return ((result as any).body || []).map((m: any) => m.name);
+}
 
 export async function generateQuestion(
   context: string,
   topicTitle: string,
   apiKey: string,
-  baseURL: string
+  baseURL: string,
+  model: string
 ): Promise<{
   question: string;
   answer: string;
@@ -56,7 +64,7 @@ ${context}`,
 
   const openai = getOpenAI(apiKey, baseURL);
   const completion = await openai.chat.completions.create({
-    model: OPENAI_MODEL,
+    model,
     messages,
     max_tokens: 256,
     temperature: 0,
@@ -79,7 +87,8 @@ export async function generateSingleQuestion(
   topicContent: string,
   topicTitle: string,
   apiKey: string,
-  baseURL: string
+  baseURL: string,
+  model: string
 ): Promise<{ question: string; answer: string; context: string }> {
   // Split content by double newlines to get individual bullet points
   const bulletPoints = topicContent.split('\n\n').filter(point => point.trim().length > 0);
@@ -93,5 +102,5 @@ export async function generateSingleQuestion(
   const randomIndex = Math.floor(Math.random() * bulletPoints.length);
   const randomBulletPoint = bulletPoints[randomIndex];
 
-  return await generateQuestion(randomBulletPoint, topicTitle, apiKey, baseURL);
+  return await generateQuestion(randomBulletPoint, topicTitle, apiKey, baseURL, model);
 }

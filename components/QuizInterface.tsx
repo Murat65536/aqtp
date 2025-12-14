@@ -18,9 +18,10 @@ interface QuizInterfaceProps {
   onBack: () => void;
   baseURL: string;
   apiKey: string;
+  model: string;
 }
 
-export default function QuizInterface({ topic, onBack, baseURL, apiKey }: QuizInterfaceProps) {
+export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }: QuizInterfaceProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -39,7 +40,8 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey }: QuizIn
         topic.content,
         topic.title,
         apiKey,
-        baseURL
+        baseURL,
+        model
       );
       
       setQuestions(prev => [...prev, question]);
