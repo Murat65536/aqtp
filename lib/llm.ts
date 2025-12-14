@@ -20,7 +20,6 @@ export async function fetchAvailableModels(apiKey: string, baseURL: string): Pro
 
 export async function generateQuestion(
   context: string,
-  topicTitle: string,
   apiKey: string,
   baseURL: string,
   model: string
@@ -42,10 +41,10 @@ Given background information, write a quiz bowl question following these rules:
 - Do NOT write multiple questions - only ONE question at the very end
 
 Here are a few examples:
-This mythological woman mothered a child with a man who was later killed using a lance tipped with stingray poison by that child. This person advised her lover to sail to the underworld to meet the ghost of the blind seer Tiresias. Telegonus was a son of this resident of the island Aeaea, whose magic was countered by the herb moly. The members of Odysseus’s crew were turned into swine by what sorceress?
+This mythological woman mothered a child with a man who was later killed using a lance tipped with stingray poison by that child. This person advised her lover to sail to the underworld to meet the ghost of the blind seer Tiresias. Telegonus was a son of this resident of the island Aeaea, whose magic was countered by the herb moly. The members of Odysseus's crew were turned into swine by what sorceress?
 Circe
 
-Question: Biologist Rudolf Virchow legendarily offered to “duel” this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
+Question: Biologist Rudolf Virchow legendarily offered to "duel" this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
 Otto von Bismarck
 
 
@@ -57,7 +56,7 @@ Format:
     },
     {
       role: 'user',
-      content: `Write a quiz bowl question about ${topicTitle} and based on the following context:
+      content: `Write a quiz bowl question based on the following context:
 ${context}`,
     }
   ];
@@ -85,7 +84,6 @@ ${context}`,
 
 export async function generateSingleQuestion(
   topicContent: string,
-  topicTitle: string,
   apiKey: string,
   baseURL: string,
   model: string
@@ -102,5 +100,49 @@ export async function generateSingleQuestion(
   const randomIndex = Math.floor(Math.random() * bulletPoints.length);
   const randomBulletPoint = bulletPoints[randomIndex];
 
-  return await generateQuestion(randomBulletPoint, topicTitle, apiKey, baseURL, model);
+  return await generateQuestion(randomBulletPoint, apiKey, baseURL, model);
+}
+
+export async function checkAnswer(
+  question: string,
+  correctAnswer: string,
+  userAnswer: string,
+  apiKey: string,
+  baseURL: string,
+  model: string
+): Promise<boolean> {
+  const messages: ChatCompletionMessageParam[] = [
+    {
+      role: 'system',
+      content: `You are a quiz grading assistant. Compare the user's answer to the correct answer and determine if it's correct.
+
+Guidelines for grading:
+- Be lenient with minor spelling errors
+- Accept different phrasings that convey the same meaning
+- If the answer is a person, last names are acceptable
+
+Respond by ONLY saying "correct" or "incorrect".`
+    },
+    {
+      role: 'user',
+      content: `Question: ${question}
+
+Correct Answer: ${correctAnswer}
+
+User's Answer: ${userAnswer}
+
+Is the user's answer correct?`
+    }
+  ];
+
+  const openai = getOpenAI(apiKey, baseURL);
+  const completion = await openai.chat.completions.create({
+    model,
+    messages,
+    max_tokens: 200,
+    temperature: 0.0,
+  });
+  
+  console.log(completion.choices[0].message?.content?.trim() === "correct");
+  return completion.choices[0].message?.content?.trim() === "correct";
 }

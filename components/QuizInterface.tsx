@@ -28,6 +28,8 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
   const [showAnswer, setShowAnswer] = useState(false);
   const [userAnswer, setUserAnswer] = useState('');
   const [quizStarted, setQuizStarted] = useState(false);
+  const [checkResult, setCheckResult] = useState<boolean | null>(null);
+  const [checking, setChecking] = useState(false);
 
   const [questionError, setQuestionError] = useState<string | null>(null);
 
@@ -35,20 +37,17 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
     setLoading(true);
     setQuestionError(null);
     try {
-      // Import the generateSingleQuestion function directly
-      // Note: This will expose your API calls to the client
       const { generateSingleQuestion } = await import('@/lib/llm');
-      
+
       const question = await generateSingleQuestion(
         topic.content,
-        topic.title,
         apiKey,
         baseURL,
         model
       );
-      
+
       setQuestions(prev => [...prev, question]);
-  
+
       if (!quizStarted) {
         setQuizStarted(true);
         setCurrentQuestionIndex(0);
@@ -60,11 +59,39 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
     }
   };
 
+  const handleCheckAnswer = async () => {
+    if (!userAnswer.trim()) {
+      return;
+    }
+
+    setChecking(true);
+    setCheckResult(null);
+
+    try {
+      const { checkAnswer } = await import('@/lib/llm');
+
+      const result = await checkAnswer(
+        currentQuestion.question,
+        currentQuestion.answer,
+        userAnswer,
+        apiKey,
+        baseURL,
+        model
+      );
+
+      setCheckResult(result);
+    } catch (error: any) {
+      setQuestionError('Failed to check answer: ' + error.message);
+    } finally {
+      setChecking(false);
+    }
+  };
+
   const handleNextQuestion = () => {
     setShowAnswer(false);
     setUserAnswer('');
+    setCheckResult(null);
 
-    // If we're at the last question, generate a new one
     if (currentQuestionIndex === questions.length - 1) {
       setCurrentQuestionIndex(questions.length);
       generateNextQuestion();
@@ -78,6 +105,7 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
       setCurrentQuestionIndex(currentQuestionIndex - 1);
       setShowAnswer(false);
       setUserAnswer('');
+      setCheckResult(null);
     }
   };
 
@@ -127,7 +155,6 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
 
   const currentQuestion = questions[currentQuestionIndex];
 
-  // Show loading state if we're waiting for a question
   if (!currentQuestion && loading) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -178,10 +205,49 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
             placeholder="Type your answer here..."
-            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none min-h-32"
+            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none min-h-32 text-gray-900 dark:text-gray-100 dark:bg-gray-800"
           />
         </div>
 
+        {/* Check Answer Button */}
+        {userAnswer.trim() && !checkResult && (
+          <div className="mb-4">
+            <button
+              onClick={handleCheckAnswer}
+              disabled={checking}
+              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {checking ? (
+                <span className="flex items-center justify-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Checking Answer...
+                </span>
+              ) : (
+                'Check My Answer'
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Check Result */}
+        {checkResult && (
+          <div className={`mb-4 p-4 rounded-lg ${checkResult
+            ? 'bg-green-100 dark:bg-green-900 border-2 border-green-500'
+            : 'bg-orange-100 dark:bg-orange-900 border-2 border-orange-500'
+            }`}>
+            <h3 className={`text-xl font-semibold mb-2 ${checkResult ? 'text-green-800 dark:text-green-200' : 'text-orange-800 dark:text-orange-200'
+              }`}>
+              {checkResult ? '✓ Correct!' : '✗ Not Quite'}
+            </h3>
+            <p className={checkResult ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'}>
+              Correct Answer: {currentQuestion.answer}
+              <br />
+              Your Answer: {userAnswer}
+            </p>
+          </div>
+        )}
+
+        {/* Show Answer Button */}
         <div className="mb-6">
           <button
             onClick={() => setShowAnswer(!showAnswer)}
@@ -204,6 +270,7 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
           )}
         </div>
 
+        {/* Navigation Buttons */}
         <div className="flex gap-4">
           <button
             onClick={handlePreviousQuestion}
