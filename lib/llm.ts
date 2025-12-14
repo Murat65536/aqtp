@@ -41,16 +41,16 @@ Question: Biologist Rudolf Virchow legendarily offered to “duel” this man by
 Otto von Bismarck
 
 
-FOLLOW THE FORMAT GIVEN BY THE EXAMPLES`
+FOLLOW THE FORMAT GIVEN BY THE EXAMPLES
+
+Format:
+[question here]
+[answer here]`
     },
     {
       role: 'user',
       content: `Write a quiz bowl question about ${topicTitle} and based on the following context:
-${context}
-
-Format:
-[question here]
-[answer here]`,
+${context}`,
     }
   ];
 

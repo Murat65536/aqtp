@@ -18,22 +18,21 @@ export default function Home() {
 
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
+    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex flex-col items-center">
  
-          <label htmlFor="api-key" className="mb-2 font-semibold text-gray-700">Enter your OpenAI API Key:</label>
+          <label htmlFor="api-key" className="mb-2 font-semibold text-gray-100">Enter your OpenAI API Key:</label>
           <input
             id="api-key"
             type="password"
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
             className="w-full max-w-md p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-4"
-            placeholder="sk-..."
             autoComplete="off"
           />
 
-          <label htmlFor="base-url" className="mb-2 font-semibold text-gray-700 mt-4">Enter your OpenAI Base URL:</label>
+          <label htmlFor="base-url" className="mb-2 font-semibold text-gray-100 mt-4">Enter your OpenAI Base URL:</label>
           <input
             id="base-url"
             type="text"
