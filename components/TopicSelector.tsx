@@ -20,7 +20,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
   useEffect(() => {
     async function fetchTopics() {
       try {
-        const response = await fetch('/api/topics');
+        const response = await fetch('/aqtp/naqt_topics_cache.json');
         if (!response.ok) throw new Error('Failed to fetch topics');
         const data = await response.json();
         setTopics(data);

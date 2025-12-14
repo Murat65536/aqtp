@@ -31,22 +31,19 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey }: QuizIn
   const generateNextQuestion = async () => {
     setLoading(true);
     try {
-      const response = await fetch('/api/generate-questions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          topicContent: topic.content,
-          topicTitle: topic.title,
-          apiKey,
-          baseURL,
-        }),
-      });
-
-      if (!response.ok) throw new Error('Failed to generate question');
-
-      const data = await response.json();
-      setQuestions(prev => [...prev, data.question]);
-
+      // Import the generateSingleQuestion function directly
+      // Note: This will expose your API calls to the client
+      const { generateSingleQuestion } = await import('@/lib/llm');
+      
+      const question = await generateSingleQuestion(
+        topic.content,
+        topic.title,
+        apiKey,
+        baseURL
+      );
+      
+      setQuestions(prev => [...prev, question]);
+  
       if (!quizStarted) {
         setQuizStarted(true);
         setCurrentQuestionIndex(0);

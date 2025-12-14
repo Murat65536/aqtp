@@ -5,6 +5,7 @@ function getOpenAI(apiKey: string, baseURL: string) {
   return new OpenAI({
     apiKey,
     baseURL,
+    dangerouslyAllowBrowser: true,
   });
 }
 
@@ -33,10 +34,12 @@ Given background information, write a quiz bowl question following these rules:
 - Do NOT write multiple questions - only ONE question at the very end
 
 Here are a few examples:
-Question: This mythological woman mothered a child with a man who was later killed using a lance tipped with stingray poison by that child. This person advised her lover to sail to the underworld to meet the ghost of the blind seer Tiresias. Telegonus was a son of this resident of the island Aeaea, whose magic was countered by the herb moly. The members of Odysseus’s crew were turned into swine by what sorceress?
-ANSWER: Circe
+This mythological woman mothered a child with a man who was later killed using a lance tipped with stingray poison by that child. This person advised her lover to sail to the underworld to meet the ghost of the blind seer Tiresias. Telegonus was a son of this resident of the island Aeaea, whose magic was countered by the herb moly. The members of Odysseus’s crew were turned into swine by what sorceress?
+Circe
+
 Question: Biologist Rudolf Virchow legendarily offered to “duel” this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
-ANSWER: Otto von Bismarck
+Otto von Bismarck
+
 
 FOLLOW THE FORMAT GIVEN BY THE EXAMPLES`
     },
