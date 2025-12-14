@@ -78,7 +78,6 @@ export default function Home() {
               setBaseURL(e.target.value);
             }}
             className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-gray-800 text-white"
-            placeholder="https://api.openai.com"
             autoComplete="off"
           />
           {models.length > 0 && (

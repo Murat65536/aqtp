@@ -29,8 +29,11 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
   const [userAnswer, setUserAnswer] = useState('');
   const [quizStarted, setQuizStarted] = useState(false);
 
+  const [questionError, setQuestionError] = useState<string | null>(null);
+
   const generateNextQuestion = async () => {
     setLoading(true);
+    setQuestionError(null);
     try {
       // Import the generateSingleQuestion function directly
       // Note: This will expose your API calls to the client
@@ -50,8 +53,8 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
         setQuizStarted(true);
         setCurrentQuestionIndex(0);
       }
-    } catch (error) {
-      console.error('Error generating question:', error);
+    } catch (error: any) {
+      setQuestionError(error.message || 'Failed to generate question');
     } finally {
       setLoading(false);
     }
@@ -96,6 +99,12 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
               {topic.content}
             </p>
           </div>
+
+          {questionError && (
+            <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded">
+              {questionError}
+            </div>
+          )}
 
           <button
             onClick={generateNextQuestion}
@@ -152,6 +161,12 @@ export default function QuizInterface({ topic, onBack, baseURL, apiKey, model }:
             Question {currentQuestionIndex + 1}
           </span>
         </div>
+
+        {questionError && (
+          <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded">
+            {questionError}
+          </div>
+        )}
 
         <div className="mb-8">
           <div className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg mb-4">
