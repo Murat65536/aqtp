@@ -15,7 +15,7 @@ export async function fetchAvailableModels(apiKey: string): Promise<string[]> {
   const openai = getOpenAI(apiKey);
   const result = await openai.models.list();
   // body is a protected field, so result must be cast to any.
-  return ((result as any).body ?? result.data).map((m: any) => m.friendly_name ?? m.id);
+  return ((result as any).body ?? result.data).map((m: any) => m.name ?? m.id);
 }
 
 export async function generateQuestion(
@@ -47,11 +47,11 @@ Question: Biologist Rudolf Virchow legendarily offered to "duel" this man by eat
 Otto von Bismarck
 
 
-FOLLOW THE FORMAT GIVEN BY THE EXAMPLES
-
-Format:
-[question here]
-[answer here]`
+Always output your response in the following JSON format:
+{
+  "question": string,
+  "answer": string
+}`
     },
     {
       role: 'user',
@@ -68,15 +68,14 @@ ${context}`,
     temperature: 0,
     presence_penalty: 0.6,
     frequency_penalty: 0.3,
+    response_format: { type: "json_object" }
   });
 
-  const response = completion.choices[0].message?.content?.trim().split('\n') ?? ['Error', 'Error'];
-  const question = response[0];
-  const answer = response[1];
+  const response = JSON.parse(completion.choices[0].message.content!);
 
   return {
-    question,
-    answer,
+    question: response.question,
+    answer: response.answer,
     context,
   };
 }
@@ -107,14 +106,14 @@ export async function checkAnswer(
   userAnswer: string,
   apiKey: string,
   model: string
-): Promise<boolean> {
+): Promise<{ correct: boolean }> {
   const messages: ChatCompletionMessageParam[] = [
     {
       role: 'system',
       content: `You are a quiz grading assistant. Compare the user's answer to the correct answer and determine if it's correct.
 
 Guidelines for grading:
-- Be lenient with minor spelling errors
+- Spelling doesn't matter as long as it's legible
 - Accept different phrasings that convey the same meaning
 - If the answer is a person, last names are acceptable
 
@@ -140,5 +139,7 @@ Is the user's answer correct?`
     temperature: 0.0,
   });
 
-  return completion.choices[0].message?.content?.trim() === "correct";
+  return {
+    correct: completion.choices[0].message?.content?.trim() === "correct"
+  };
 }

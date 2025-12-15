@@ -13,6 +13,10 @@ interface Topic {
   content: string;
 }
 
+interface Validation {
+  correct: boolean;
+}
+
 interface QuizInterfaceProps {
   topic: Topic;
   onBack: () => void;
@@ -24,10 +28,13 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [showAnswer, setShowAnswer] = useState(false);
+
   const [userAnswer, setUserAnswer] = useState('');
   const [quizStarted, setQuizStarted] = useState(false);
-  const [checkResult, setCheckResult] = useState<boolean | null>(null);
+  const [checkResult, setCheckResult] = useState<Validation | null>(null);
+  const [skipped, setSkipped] = useState(false);
+  const [correctCount, setCorrectCount] = useState(0);
+  const [answeredCount, setAnsweredCount] = useState(0);
   const [checking, setChecking] = useState(false);
 
   const [questionError, setQuestionError] = useState<string | null>(null);
@@ -77,6 +84,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
       );
 
       setCheckResult(result);
+      setAnsweredCount((prev) => prev + 1);
+      if (result) setCorrectCount((prev) => prev + 1);
     } catch (error: any) {
       setQuestionError('Failed to check answer: ' + error.message);
     } finally {
@@ -85,9 +94,11 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
   };
 
   const handleNextQuestion = () => {
-    setShowAnswer(false);
+
     setUserAnswer('');
     setCheckResult(null);
+    setSkipped(false);
+    setSkipped(false);
 
     if (currentQuestionIndex === questions.length - 1) {
       setCurrentQuestionIndex(questions.length);
@@ -100,7 +111,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setShowAnswer(false);
+
       setUserAnswer('');
       setCheckResult(null);
     }
@@ -181,9 +192,14 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-100">{topic.title}</h2>
-          <span className="text-gray-300">
-            Question {currentQuestionIndex + 1}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="text-gray-300">
+              Question {currentQuestionIndex + 1}
+            </span>
+            <span className="text-green-400 text-sm mt-1">
+              Accuracy: {answeredCount > 0 ? ((correctCount / answeredCount) * 100).toFixed(2) : 100}%
+            </span>
+          </div>
         </div>
 
         {questionError && (
@@ -206,37 +222,42 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           />
         </div>
 
-        {/* Check Answer Button */}
-        {userAnswer.trim() && !checkResult && (
-          <div className="mb-4">
-            <button
-              onClick={handleCheckAnswer}
-              disabled={checking}
-              className="w-full bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
-            >
-              {checking ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                  Checking Answer...
-                </span>
-              ) : (
-                'Check My Answer'
-              )}
-            </button>
-          </div>
-        )}
+        {/* Check Answer and Skip Buttons */}
+        <div className="mb-4 flex gap-4">
+          <button
+            onClick={handleCheckAnswer}
+            disabled={checking || !userAnswer.trim() || checkResult?.correct || skipped}
+            className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            {checking ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                Checking Answer...
+              </span>
+            ) : (
+              'Check Answer'
+            )}
+          </button>
+          <button
+            onClick={() => { setSkipped(true); setCheckResult(null); setAnsweredCount((prev) => prev + 1); }}
+            disabled={checkResult?.correct || skipped}
+            className="flex-1 bg-red-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+          >
+            Skip
+          </button>
+        </div>
 
         {/* Check Result */}
         {checkResult && (
-          <div className={`mb-4 p-4 rounded-lg ${checkResult
+          <div className={`mb-4 p-4 rounded-lg ${checkResult?.correct
             ? 'bg-green-100 dark:bg-green-900 border-2 border-green-500'
             : 'bg-orange-100 dark:bg-orange-900 border-2 border-orange-500'
             }`}>
-            <h3 className={`text-xl font-semibold mb-2 ${checkResult ? 'text-green-800 dark:text-green-200' : 'text-orange-800 dark:text-orange-200'
+            <h3 className={`text-xl font-semibold mb-2 ${checkResult?.correct ? 'text-green-800 dark:text-green-200' : 'text-orange-800 dark:text-orange-200'
               }`}>
-              {checkResult ? '✓ Correct!' : '✗ Not Quite'}
+              {checkResult?.correct ? 'Correct' : 'Incorrect'}
             </h3>
-            <p className={checkResult ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'}>
+            <p className={checkResult?.correct ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'}>
               Correct Answer: {currentQuestion.answer}
               <br />
               Your Answer: {userAnswer}
@@ -244,28 +265,21 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           </div>
         )}
 
-        {/* Show Answer Button */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowAnswer(!showAnswer)}
-            className="w-full bg-green-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors"
-          >
-            {showAnswer ? 'Hide Answer' : 'Show Answer'}
-          </button>
-
-          {showAnswer && (
-            <>
+        {/* Show Answer only when skipped, Context after checking or skipping */}
+        {(checkResult || skipped) && (
+          <div className="mb-6">
+            {skipped && (
               <div className="mt-4 p-6 bg-green-50 dark:bg-gray-800 rounded-lg">
                 <h3 className="text-xl font-semibold text-gray-100 mb-2">Answer:</h3>
                 <p className="text-gray-100">{currentQuestion.answer}</p>
               </div>
-              <div className="mt-4 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg">
-                <h3 className="text-xl font-semibold text-gray-100 mb-2">Context:</h3>
-                <p className="text-gray-100">{currentQuestion.context}</p>
-              </div>
-            </>
-          )}
-        </div>
+            )}
+            <div className="mt-4 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-100 mb-2">Context:</h3>
+              <p className="text-gray-100">{currentQuestion.context}</p>
+            </div>
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex gap-4">
@@ -278,7 +292,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           </button>
           <button
             onClick={handleNextQuestion}
-            disabled={loading}
+            disabled={loading || (!skipped && checkResult === null)}
             className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Generating...' : 'Next'}
