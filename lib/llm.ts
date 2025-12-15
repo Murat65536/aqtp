@@ -44,14 +44,7 @@ This mythological woman mothered a child with a man who was later killed using a
 Circe
 
 Question: Biologist Rudolf Virchow legendarily offered to "duel" this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
-Otto von Bismarck
-
-
-Always output your response in the following JSON format:
-{
-  "question": string,
-  "answer": string
-}`
+Otto von Bismarck`
     },
     {
       role: 'user',
@@ -68,10 +61,35 @@ ${context}`,
     temperature: 0,
     presence_penalty: 0.6,
     frequency_penalty: 0.3,
-    response_format: { type: "json_object" }
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "question_response",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            question: {
+              type: "string",
+              description: "The quiz bowl question with descriptive clues"
+            },
+            answer: {
+              type: "string",
+              description: "The correct answer to the question"
+            }
+          },
+          required: ["question", "answer"],
+          additionalProperties: false
+        }
+      }
+    }
   });
 
-  const response = JSON.parse(completion.choices[0].message.content!);
+  const response = JSON.parse(completion.choices[0].message.content || "{}");
+  
+  if (!response.question || !response.answer) {
+    throw new Error("Failed to parse question response");
+  }
 
   return {
     question: response.question,
@@ -115,9 +133,7 @@ export async function checkAnswer(
 Guidelines for grading:
 - Spelling doesn't matter as long as it's legible
 - Accept different phrasings that convey the same meaning
-- If the answer is a person, last names are acceptable
-
-Respond by ONLY saying "correct" or "incorrect".`
+- If the answer is a person, last names are acceptable`
     },
     {
       role: 'user',
@@ -135,11 +151,35 @@ Is the user's answer correct?`
   const completion = await openai.chat.completions.create({
     model,
     messages,
-    max_tokens: 200,
+    max_tokens: 64,
     temperature: 0.0,
+    response_format: {
+      type: "json_schema",
+      json_schema: {
+        name: "validation_response",
+        strict: true,
+        schema: {
+          type: "object",
+          properties: {
+            correct: {
+              type: "boolean",
+              description: "Whether the user's answer is correct"
+            }
+          },
+          required: ["correct"],
+          additionalProperties: false
+        }
+      }
+    }
   });
 
+  const response = JSON.parse(completion.choices[0].message.content || "{}");
+  
+  if (typeof response.correct !== "boolean") {
+    throw new Error("Failed to parse validation response");
+  }
+
   return {
-    correct: completion.choices[0].message?.content?.trim() === "correct"
+    correct: response.correct
   };
 }
