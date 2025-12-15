@@ -207,11 +207,7 @@ export default function Home() {
 
           {/* Security Notice */}
           <div className="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
-            <h3 className="text-sm font-semibold text-gray-100 mb-2">🔒 Privacy & Security</h3>
-            <ul className="text-xs text-gray-400 space-y-1">
-              <li>• Settings stored in browser</li>
-              <li>• Use only on trusted devices</li>
-            </ul>
+            Settings are stored locally in your browser. Only save API keys on trusted devices.
           </div>
         </div>
       )}
