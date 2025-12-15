@@ -22,7 +22,7 @@ const STORAGE_KEYS = {
 export default function Home() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [apiKey, setApiKey] = useState('');
-  const [baseURL, setBaseURL] = useState('https://models.inference.ai.azure.com');
+  const baseURL = 'https://models.inference.ai.azure.com';
   const [models, setModels] = useState<string[]>([]);
   const [model, setModel] = useState(DEFAULT_OPENAI_MODEL);
   const [modelLoading, setModelLoading] = useState(false);
@@ -35,10 +35,12 @@ export default function Home() {
       const savedApiKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
       const savedBaseURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
       const savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
+      const savedBaseURLMode = localStorage.getItem('quiz_app_base_url_mode');
 
       if (savedApiKey) setApiKey(savedApiKey);
-      if (savedBaseURL) setBaseURL(savedBaseURL);
+      
       if (savedModel) setModel(savedModel);
+      
     }
   }, []);
 
@@ -49,11 +51,7 @@ export default function Home() {
     }
   }, [apiKey]);
 
-  useEffect(() => {
-    if (typeof window !== 'undefined' && baseURL) {
-      localStorage.setItem(STORAGE_KEYS.BASE_URL, baseURL);
-    }
-  }, [baseURL]);
+  
 
   useEffect(() => {
     if (typeof window !== 'undefined' && model) {
@@ -63,11 +61,11 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchModels() {
-      if (!apiKey || !baseURL) return;
+      if (!apiKey) return;
       setModelLoading(true);
       setModelError(null);
       try {
-        const result = await fetchAvailableModels(apiKey, baseURL);
+        const result = await fetchAvailableModels(apiKey);
         setModels(result);
         
         // Only change model if current model is not in the new list
@@ -85,7 +83,7 @@ export default function Home() {
       }
     }
     fetchModels();
-  }, [apiKey, baseURL]);
+  }, [apiKey]);
 
   const handleClearApiKey = () => {
     if (confirm('Are you sure you want to clear your saved API key?')) {
@@ -99,11 +97,9 @@ export default function Home() {
   const handleClearAllSettings = () => {
     if (confirm('Are you sure you want to clear all saved settings?')) {
       setApiKey('');
-      setBaseURL('https://models.inference.ai.azure.com');
       setModel(DEFAULT_OPENAI_MODEL);
       if (typeof window !== 'undefined') {
         localStorage.removeItem(STORAGE_KEYS.API_KEY);
-        localStorage.removeItem(STORAGE_KEYS.BASE_URL);
         localStorage.removeItem(STORAGE_KEYS.MODEL);
       }
     }
@@ -158,21 +154,6 @@ export default function Home() {
             )}
           </div>
 
-          {/* Base URL Section */}
-          <div className="mb-6">
-            <label htmlFor="base-url" className="mb-2 font-semibold text-gray-100 block">
-              OpenAI Base URL:
-            </label>
-            <input
-              id="base-url"
-              type="text"
-              value={baseURL}
-              onChange={e => setBaseURL(e.target.value)}
-              className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-gray-800 text-white"
-              autoComplete="off"
-            />
-          </div>
-
           {/* Model Selection */}
           {models.length > 0 && (
             <div className="mb-4">
@@ -218,7 +199,6 @@ export default function Home() {
         <QuizInterface
           topic={selectedTopic}
           onBack={() => setSelectedTopic(null)}
-          baseURL={baseURL}
           apiKey={apiKey}
           model={model}
         />
