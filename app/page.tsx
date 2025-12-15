@@ -128,7 +128,7 @@ export default function Home() {
           {/* API Key Section */}
           <div className="mb-6">
             <label htmlFor="api-key" className="mb-2 font-semibold text-gray-100 block">
-              OpenAI API Key:
+              API Key:
             </label>
             <input
               id="api-key"
