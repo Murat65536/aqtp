@@ -32,9 +32,7 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedApiKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
-      const savedBaseURL = localStorage.getItem(STORAGE_KEYS.BASE_URL);
       const savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
-      const savedBaseURLMode = localStorage.getItem('quiz_app_base_url_mode');
 
       if (savedApiKey) setApiKey(savedApiKey);
       
