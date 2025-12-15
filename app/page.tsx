@@ -22,7 +22,6 @@ const STORAGE_KEYS = {
 export default function Home() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [apiKey, setApiKey] = useState('');
-  const baseURL = 'https://models.inference.ai.azure.com';
   const [models, setModels] = useState<string[]>([]);
   const [model, setModel] = useState(DEFAULT_OPENAI_MODEL);
   const [modelLoading, setModelLoading] = useState(false);

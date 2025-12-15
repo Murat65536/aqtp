@@ -15,7 +15,7 @@ export async function fetchAvailableModels(apiKey: string): Promise<string[]> {
   const openai = getOpenAI(apiKey);
   const result = await openai.models.list();
   // body is a protected field, so result must be cast to any.
-  return ((result as any).body ?? result.data).map((m: any) => m.name ?? m.id);
+  return ((result as any).body ?? result.data).map((m: any) => m.friendly_name ?? m.id);
 }
 
 export async function generateQuestion(
