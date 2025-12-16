@@ -128,10 +128,10 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
         </button>
 
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-100 mb-4">{topic.title}</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{topic.title}</h2>
 
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-h-64 overflow-y-auto">
-            <p className="text-gray-200 whitespace-pre-wrap">
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200">
+            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
               {topic.content}
             </p>
           </div>
@@ -191,9 +191,9 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
 
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-100">{topic.title}</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{topic.title}</h2>
           <div className="flex flex-col items-end">
-            <span className="text-gray-300">
+            <span className="text-gray-700 dark:text-gray-300">
               Question {currentQuestionIndex + 1}
             </span>
             <span className="text-green-400 text-sm mt-1">
@@ -210,8 +210,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
 
         <div className="mb-8">
           <div className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg mb-4">
-            <h3 className="text-xl font-semibold text-gray-100 mb-2">Question:</h3>
-            <p className="text-gray-200 text-lg">{currentQuestion.question}</p>
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Question:</h3>
+            <p className="text-gray-800 dark:text-gray-200 text-lg">{currentQuestion.question}</p>
           </div>
 
           <textarea
@@ -270,13 +270,13 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           <div className="mb-6">
             {skipped && (
               <div className="mt-4 p-6 bg-green-50 dark:bg-gray-800 rounded-lg">
-                <h3 className="text-xl font-semibold text-gray-100 mb-2">Answer:</h3>
-                <p className="text-gray-100">{currentQuestion.answer}</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Answer:</h3>
+                <p className="text-gray-900 dark:text-gray-100">{currentQuestion.answer}</p>
               </div>
             )}
             <div className="mt-4 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="text-xl font-semibold text-gray-100 mb-2">Context:</h3>
-              <p className="text-gray-100">{currentQuestion.context}</p>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Context:</h3>
+              <p className="text-gray-900 dark:text-gray-100">{currentQuestion.context}</p>
             </div>
           </div>
         )}

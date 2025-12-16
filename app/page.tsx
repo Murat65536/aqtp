@@ -124,7 +124,7 @@ export default function Home() {
           
           {/* API Key Section */}
           <div className="mb-6">
-            <label htmlFor="api-key" className="mb-2 font-semibold text-gray-100 block">
+            <label htmlFor="api-key" className="mb-2 font-semibold text-gray-900 dark:text-gray-100 block">
               API Key:
             </label>
             <input
@@ -132,19 +132,19 @@ export default function Home() {
               type="password"
               value={apiKey}
               onChange={e => setApiKey(e.target.value)}
-              className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-2 bg-gray-800 text-white"
+              className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-2 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
               autoComplete="off"
               placeholder="Enter your API key"
             />
             {apiKey && (
-              <div className="text-xs text-green-400 mb-2">
+              <div className="text-xs text-green-700 dark:text-green-400 mb-2">
                 ✓ API key saved in browser
               </div>
             )}
             {apiKey && (
               <button
                 onClick={handleClearApiKey}
-                className="text-xs text-red-400 hover:text-red-300 underline"
+                className="text-xs text-red-700 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 underline"
               >
                 Clear saved API key
               </button>
@@ -154,7 +154,7 @@ export default function Home() {
           {/* Model Selection */}
           {models.length > 0 && (
             <div className="mb-4">
-              <label htmlFor="model" className="mb-2 font-semibold text-gray-100 block">
+              <label htmlFor="model" className="mb-2 font-semibold text-gray-900 dark:text-gray-100 block">
                 Select Model:
               </label>
               <select

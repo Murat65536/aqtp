@@ -74,7 +74,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
               onClick={() => onTopicSelect(topic)}
               className="p-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200 text-left"
             >
-              <h3 className="font-semibold text-gray-100 line-clamp-2">
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
                 {topic.title}
               </h3>
             </button>
