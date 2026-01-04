@@ -1,18 +1,18 @@
 import OpenAI from 'openai';
 import type { ChatCompletionMessageParam } from 'openai/resources/chat';
 
-function getOpenAI(apiKey: string) {
+function getOpenAI(apiKey: string, baseURL?: string) {
   return new OpenAI({
     apiKey,
-    baseURL: 'https://models.inference.ai.azure.com',
+    baseURL: baseURL || 'https://models.inference.ai.azure.com',
     dangerouslyAllowBrowser: true,
   });
 }
 
 export const DEFAULT_OPENAI_MODEL = "gpt-4o-mini";
 
-export async function fetchAvailableModels(apiKey: string): Promise<string[]> {
-  const openai = getOpenAI(apiKey);
+export async function fetchAvailableModels(apiKey: string, baseURL?: string): Promise<string[]> {
+  const openai = getOpenAI(apiKey, baseURL);
   const result = await openai.models.list();
   // body is a protected field, so result must be cast to any.
   return ((result as any).body ?? result.data).map((m: any) => m.name ?? m.id);
@@ -21,7 +21,8 @@ export async function fetchAvailableModels(apiKey: string): Promise<string[]> {
 export async function generateQuestion(
   context: string,
   apiKey: string,
-  model: string
+  model: string,
+  baseURL?: string
 ): Promise<{
   question: string;
   answer: string;
@@ -53,7 +54,7 @@ ${context}`,
     }
   ];
 
-  const openai = getOpenAI(apiKey);
+  const openai = getOpenAI(apiKey, baseURL);
   const completion = await openai.chat.completions.create({
     model,
     messages,
@@ -101,7 +102,8 @@ ${context}`,
 export async function generateSingleQuestion(
   topicContent: string,
   apiKey: string,
-  model: string
+  model: string,
+  baseURL?: string
 ): Promise<{ question: string; answer: string; context: string }> {
   // Split content by double newlines to get individual bullet points
   const bulletPoints = topicContent.split('\n\n').filter(point => point.trim().length > 0);
@@ -115,7 +117,7 @@ export async function generateSingleQuestion(
   const randomIndex = Math.floor(Math.random() * bulletPoints.length);
   const randomBulletPoint = bulletPoints[randomIndex];
 
-  return await generateQuestion(randomBulletPoint, apiKey, model);
+  return await generateQuestion(randomBulletPoint, apiKey, model, baseURL);
 }
 
 export async function checkAnswer(
@@ -123,7 +125,8 @@ export async function checkAnswer(
   correctAnswer: string,
   userAnswer: string,
   apiKey: string,
-  model: string
+  model: string,
+  baseURL?: string
 ): Promise<{ correct: boolean }> {
   const messages: ChatCompletionMessageParam[] = [
     {
@@ -147,7 +150,7 @@ Is the user's answer correct?`
     }
   ];
 
-  const openai = getOpenAI(apiKey);
+  const openai = getOpenAI(apiKey, baseURL);
   const completion = await openai.chat.completions.create({
     model,
     messages,

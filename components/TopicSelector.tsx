@@ -41,15 +41,15 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
   if (loading) {
     return (
       <div className="text-center p-8">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-300">Loading NAQT topics...</p>
+        <div className="spinner"></div>
+        <p className="mt-4 text-muted">Loading NAQT topics...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center p-8 text-red-400">
+      <div className="text-center p-8 text-error">
         <p>Error: {error}</p>
       </div>
     );
@@ -63,16 +63,16 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search topics..."
-          className="w-full max-w-md p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none"
+          className="search-input"
         />
       </div>
-      <div className="max-h-[58vh] overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white/5 p-1 w-full">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="topics-scroll-container">
+        <div className="topics-grid">
           {filteredTopics.map((topic, index) => (
             <button
               key={index}
               onClick={() => onTopicSelect(topic)}
-              className="p-4 bg-white dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-700 rounded-lg hover:border-blue-500 hover:shadow-lg transition-all duration-200 text-left"
+              className="card-small"
             >
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">
                 {topic.title}

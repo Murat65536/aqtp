@@ -16,12 +16,21 @@ import { fetchAvailableModels, DEFAULT_OPENAI_MODEL } from '@/lib/llm';
 const STORAGE_KEYS = {
   API_KEY: 'quiz_app_api_key',
   BASE_URL: 'quiz_app_base_url',
+  PROVIDER: 'quiz_app_base_url_provider',
   MODEL: 'quiz_app_model',
 };
+
+const BASE_URL_PROVIDERS = [
+  { name: 'GitHub', url: 'https://models.inference.ai.azure.com' },
+  { name: 'OpenAI', url: 'https://api.openai.com/v1' },
+  { name: 'Custom', url: 'custom' },
+];
 
 export default function Home() {
   const [selectedTopic, setSelectedTopic] = useState<Topic | null>(null);
   const [apiKey, setApiKey] = useState('');
+  const [baseUrlProvider, setBaseUrlProvider] = useState(BASE_URL_PROVIDERS[0].name);
+  const [customBaseUrl, setCustomBaseUrl] = useState('');
   const [models, setModels] = useState<string[]>([]);
   const [model, setModel] = useState(DEFAULT_OPENAI_MODEL);
   const [modelLoading, setModelLoading] = useState(false);
@@ -32,12 +41,14 @@ export default function Home() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const savedApiKey = localStorage.getItem(STORAGE_KEYS.API_KEY);
+      const savedProvider = localStorage.getItem(STORAGE_KEYS.PROVIDER);
+      const savedBaseUrl = localStorage.getItem(STORAGE_KEYS.BASE_URL);
       const savedModel = localStorage.getItem(STORAGE_KEYS.MODEL);
 
       if (savedApiKey) setApiKey(savedApiKey);
-      
+      if (savedProvider) setBaseUrlProvider(savedProvider);
+      if (savedBaseUrl) setCustomBaseUrl(savedBaseUrl);
       if (savedModel) setModel(savedModel);
-      
     }
   }, []);
 
@@ -48,7 +59,14 @@ export default function Home() {
     }
   }, [apiKey]);
 
-  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.PROVIDER, baseUrlProvider);
+      if (customBaseUrl) {
+        localStorage.setItem(STORAGE_KEYS.BASE_URL, customBaseUrl);
+      }
+    }
+  }, [baseUrlProvider, customBaseUrl]);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && model) {
@@ -59,10 +77,15 @@ export default function Home() {
   useEffect(() => {
     async function fetchModels() {
       if (!apiKey) return;
+      
+      const baseUrl = baseUrlProvider === 'Custom' 
+        ? customBaseUrl 
+        : BASE_URL_PROVIDERS.find(p => p.name === baseUrlProvider)?.url;
+
       setModelLoading(true);
       setModelError(null);
       try {
-        const result = await fetchAvailableModels(apiKey);
+        const result = await fetchAvailableModels(apiKey, baseUrl);
         setModels(result);
         
         // Only change model if current model is not in the new list
@@ -80,7 +103,7 @@ export default function Home() {
       }
     }
     fetchModels();
-  }, [apiKey]);
+  }, [apiKey, baseUrlProvider, customBaseUrl]);
 
   const handleClearApiKey = () => {
     if (confirm('Are you sure you want to clear your saved API key?')) {
@@ -94,28 +117,33 @@ export default function Home() {
   const handleClearAllSettings = () => {
     if (confirm('Are you sure you want to clear all saved settings?')) {
       setApiKey('');
+      setBaseUrlProvider(BASE_URL_PROVIDERS[0].name);
+      setCustomBaseUrl('');
       setModel(DEFAULT_OPENAI_MODEL);
       if (typeof window !== 'undefined') {
         localStorage.removeItem(STORAGE_KEYS.API_KEY);
+        localStorage.removeItem(STORAGE_KEYS.PROVIDER);
+        localStorage.removeItem(STORAGE_KEYS.BASE_URL);
         localStorage.removeItem(STORAGE_KEYS.MODEL);
       }
     }
   };
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 relative">
-      {/* Options Button - Top Right */}
+    <div className="page-container">
+      {/* Options Button */}
       <button
-        className="fixed top-6 right-6 z-50 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none shadow-lg"
+        className="options-btn"
         onClick={() => setShowOptions((v) => !v)}
       >
         Options
       </button>
+
       {/* Sidebar */}
       {showOptions && (
-        <div className="fixed top-0 right-0 h-full w-80 bg-gray-900 shadow-2xl z-40 flex flex-col p-8 transition-transform duration-300 overflow-y-auto">
+        <div className="sidebar">
           <button
-            className="self-end mb-6 text-gray-400 hover:text-white text-2xl font-bold focus:outline-none"
+            className="sidebar-close-btn"
             onClick={() => setShowOptions(false)}
             aria-label="Close options sidebar"
           >
@@ -124,7 +152,7 @@ export default function Home() {
           
           {/* API Key Section */}
           <div className="mb-6">
-            <label htmlFor="api-key" className="mb-2 font-semibold text-gray-900 dark:text-gray-100 block">
+            <label htmlFor="api-key" className="label">
               API Key:
             </label>
             <input
@@ -132,36 +160,69 @@ export default function Home() {
               type="password"
               value={apiKey}
               onChange={e => setApiKey(e.target.value)}
-              className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none mb-2 bg-white text-gray-900 dark:bg-gray-800 dark:text-white"
+              className="input mb-2"
               autoComplete="off"
               placeholder="Enter your API key"
             />
             {apiKey && (
-              <div className="text-xs text-green-700 dark:text-green-400 mb-2">
+              <div className="saved-indicator">
                 ✓ API key saved in browser
               </div>
             )}
             {apiKey && (
               <button
                 onClick={handleClearApiKey}
-                className="text-xs text-red-700 dark:text-red-400 hover:text-red-500 dark:hover:text-red-300 underline"
+                className="clear-link"
               >
                 Clear saved API key
               </button>
             )}
           </div>
 
+          {/* Base URL Provider Section */}
+          <div className="mb-6">
+            <label htmlFor="base-url-provider" className="label">
+              Base URL Provider:
+            </label>
+            <select
+              id="base-url-provider"
+              value={baseUrlProvider}
+              onChange={e => setBaseUrlProvider(e.target.value)}
+              className="select mb-2"
+            >
+              {BASE_URL_PROVIDERS.map(p => (
+                <option key={p.name} value={p.name}>{p.name}</option>
+              ))}
+            </select>
+            
+            {baseUrlProvider === 'Custom' && (
+              <div className="mt-2">
+                <label htmlFor="custom-base-url" className="label">
+                  Custom Base URL:
+                </label>
+                <input
+                  id="custom-base-url"
+                  type="text"
+                  value={customBaseUrl}
+                  onChange={e => setCustomBaseUrl(e.target.value)}
+                  className="input"
+                  placeholder="https://api.example.com/v1"
+                />
+              </div>
+            )}
+          </div>
+
           {/* Model Selection */}
           {models.length > 0 && (
             <div className="mb-4">
-              <label htmlFor="model" className="mb-2 font-semibold text-gray-900 dark:text-gray-100 block">
+              <label htmlFor="model" className="label">
                 Select Model:
               </label>
               <select
                 id="model"
                 value={model}
                 onChange={e => setModel(e.target.value)}
-                className="w-full p-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none bg-gray-800 text-white"
+                className="select"
               >
                 {models.map(m => (
                   <option key={m} value={m}>{m}</option>
@@ -170,38 +231,39 @@ export default function Home() {
             </div>
           )}
           
-          {modelLoading && <div className="text-gray-300 mb-2 text-sm">Loading models...</div>}
-          {modelError && <div className="text-red-400 mb-2 text-sm">{modelError}</div>}
+          {modelLoading && <div className="text-muted mb-2 text-sm">Loading models...</div>}
+          {modelError && <div className="text-error mb-2 text-sm">{modelError}</div>}
 
           {/* Clear All Settings */}
           <div className="mt-4 pt-4 border-t border-gray-700">
             <button
               onClick={handleClearAllSettings}
-              className="w-full px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none text-sm"
+              className="btn-danger w-full text-sm"
             >
               Clear All Saved Settings
             </button>
           </div>
 
           {/* Security Notice */}
-          <div className="mt-6 p-4 bg-gray-800 rounded-lg border border-gray-700">
+          <div className="security-notice">
             Settings are stored locally in your browser. Only save API keys on trusted devices.
           </div>
         </div>
       )}
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex flex-col items-center">
-      </div>
-      {selectedTopic ? (
-        <QuizInterface
-          topic={selectedTopic}
-          onBack={() => setSelectedTopic(null)}
-          apiKey={apiKey}
-          model={model}
-        />
-      ) : (
-        <TopicSelector onTopicSelect={setSelectedTopic} />
-      )}
+
+      <div className="content-wrapper">
+        <div className="mb-8 flex flex-col items-center"></div>
+        {selectedTopic ? (
+          <QuizInterface
+            topic={selectedTopic}
+            onBack={() => setSelectedTopic(null)}
+            apiKey={apiKey}
+            model={model}
+            baseUrl={baseUrlProvider === 'Custom' ? customBaseUrl : BASE_URL_PROVIDERS.find(p => p.name === baseUrlProvider)?.url}
+          />
+        ) : (
+          <TopicSelector onTopicSelect={setSelectedTopic} />
+        )}
       </div>
     </div>
   );

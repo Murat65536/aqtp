@@ -22,9 +22,10 @@ interface QuizInterfaceProps {
   onBack: () => void;
   apiKey: string;
   model: string;
+  baseUrl?: string;
 }
 
-export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInterfaceProps) {
+export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }: QuizInterfaceProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -48,7 +49,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
       const question = await generateSingleQuestion(
         topic.content,
         apiKey,
-        model
+        model,
+        baseUrl
       );
 
       setQuestions(prev => [...prev, question]);
@@ -80,7 +82,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
         currentQuestion.answer,
         userAnswer,
         apiKey,
-        model
+        model,
+        baseUrl
       );
 
       setCheckResult(result);
@@ -94,10 +97,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
   };
 
   const handleNextQuestion = () => {
-
     setUserAnswer('');
     setCheckResult(null);
-    setSkipped(false);
     setSkipped(false);
 
     if (currentQuestionIndex === questions.length - 1) {
@@ -111,7 +112,6 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
-
       setUserAnswer('');
       setCheckResult(null);
     }
@@ -119,25 +119,25 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
 
   if (!quizStarted) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 flex items-center gap-2"
+          className="btn-link mb-6"
         >
           ← Back to Topics
         </button>
 
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{topic.title}</h2>
+        <div className="card">
+          <h2 className="heading-large">{topic.title}</h2>
 
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg max-h-64 overflow-y-auto text-gray-800 dark:text-gray-200">
-            <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+          <div className="info-box mb-6 max-h-64 overflow-y-auto">
+            <p className="text-body whitespace-pre-wrap">
               {topic.content}
             </p>
           </div>
 
           {questionError && (
-            <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded">
+            <div className="error-box">
               {questionError}
             </div>
           )}
@@ -145,11 +145,11 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           <button
             onClick={generateNextQuestion}
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary w-full py-3"
           >
             {loading ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span className="loading-container">
+                <div className="spinner-small"></div>
                 Generating Question with AI...
               </span>
             ) : (
@@ -165,60 +165,60 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
 
   if (!currentQuestion && loading) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 flex items-center gap-2"
+          className="btn-link mb-6"
         >
           ← Back to Topics
         </button>
-        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-300">Generating question with AI...</p>
+        <div className="card text-center">
+          <div className="spinner mb-4"></div>
+          <p className="text-muted">Generating question with AI...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="quiz-wrapper">
       <button
         onClick={onBack}
-        className="mb-6 px-4 py-2 text-blue-600 hover:text-blue-800 flex items-center gap-2"
+        className="btn-link mb-6"
       >
         ← Back to Topics
       </button>
 
-      <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+      <div className="card">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{topic.title}</h2>
+          <h2 className="heading-medium">{topic.title}</h2>
           <div className="flex flex-col items-end">
-            <span className="text-gray-700 dark:text-gray-300">
+            <span className="text-muted">
               Question {currentQuestionIndex + 1}
             </span>
-            <span className="text-green-400 text-sm mt-1">
+            <span className="accuracy-badge">
               Accuracy: {answeredCount > 0 ? ((correctCount / answeredCount) * 100).toFixed(2) : 100}%
             </span>
           </div>
         </div>
 
         {questionError && (
-          <div className="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded">
+          <div className="error-box">
             {questionError}
           </div>
         )}
 
         <div className="mb-8">
-          <div className="bg-blue-50 dark:bg-gray-800 p-6 rounded-lg mb-4">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Question:</h3>
-            <p className="text-gray-800 dark:text-gray-200 text-lg">{currentQuestion.question}</p>
+          <div className="question-box">
+            <h3 className="heading-section">Question:</h3>
+            <p className="text-body text-lg">{currentQuestion.question}</p>
           </div>
 
           <textarea
             value={userAnswer}
             onChange={(e) => setUserAnswer(e.target.value)}
             placeholder="Type your answer here..."
-            className="w-full p-4 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none min-h-32 text-gray-900 dark:text-gray-100 dark:bg-gray-800"
+            className="textarea"
           />
         </div>
 
@@ -227,11 +227,11 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           <button
             onClick={handleCheckAnswer}
             disabled={checking || !userAnswer.trim() || checkResult?.correct || skipped}
-            className="flex-1 bg-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="btn-check flex-1 py-3"
           >
             {checking ? (
-              <span className="flex items-center justify-center gap-2">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+              <span className="loading-container">
+                <div className="spinner-small"></div>
                 Checking Answer...
               </span>
             ) : (
@@ -241,7 +241,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           <button
             onClick={() => { setSkipped(true); setCheckResult(null); setAnsweredCount((prev) => prev + 1); }}
             disabled={checkResult?.correct || skipped}
-            className="flex-1 bg-red-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="btn-skip flex-1 py-3"
           >
             Skip
           </button>
@@ -249,15 +249,11 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
 
         {/* Check Result */}
         {checkResult && (
-          <div className={`mb-4 p-4 rounded-lg ${checkResult?.correct
-            ? 'bg-green-100 dark:bg-green-900 border-2 border-green-500'
-            : 'bg-orange-100 dark:bg-orange-900 border-2 border-orange-500'
-            }`}>
-            <h3 className={`text-xl font-semibold mb-2 ${checkResult?.correct ? 'text-green-800 dark:text-green-200' : 'text-orange-800 dark:text-orange-200'
-              }`}>
-              {checkResult?.correct ? 'Correct' : 'Incorrect'}
+          <div className={checkResult.correct ? 'result-correct' : 'result-incorrect'}>
+            <h3 className={checkResult.correct ? 'result-title-correct' : 'result-title-incorrect'}>
+              {checkResult.correct ? 'Correct' : 'Incorrect'}
             </h3>
-            <p className={checkResult?.correct ? 'text-green-700 dark:text-green-300' : 'text-orange-700 dark:text-orange-300'}>
+            <p className={checkResult.correct ? 'result-text-correct' : 'result-text-incorrect'}>
               Correct Answer: {currentQuestion.answer}
               <br />
               Your Answer: {userAnswer}
@@ -269,14 +265,14 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
         {(checkResult || skipped) && (
           <div className="mb-6">
             {skipped && (
-              <div className="mt-4 p-6 bg-green-50 dark:bg-gray-800 rounded-lg">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Answer:</h3>
-                <p className="text-gray-900 dark:text-gray-100">{currentQuestion.answer}</p>
+              <div className="context-box mt-4">
+                <h3 className="heading-section">Answer:</h3>
+                <p className="text-body">{currentQuestion.answer}</p>
               </div>
             )}
-            <div className="mt-4 p-6 bg-blue-50 dark:bg-gray-800 rounded-lg">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Context:</h3>
-              <p className="text-gray-900 dark:text-gray-100">{currentQuestion.context}</p>
+            <div className="context-box mt-4">
+              <h3 className="heading-section">Context:</h3>
+              <p className="text-body">{currentQuestion.context}</p>
             </div>
           </div>
         )}
@@ -286,14 +282,14 @@ export default function QuizInterface({ topic, onBack, apiKey, model }: QuizInte
           <button
             onClick={handlePreviousQuestion}
             disabled={currentQuestionIndex === 0}
-            className="flex-1 bg-gray-700 text-gray-100 py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 disabled:bg-gray-900 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors"
+            className="btn-secondary flex-1 py-3"
           >
             Previous
           </button>
           <button
             onClick={handleNextQuestion}
             disabled={loading || (!skipped && checkResult === null)}
-            className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+            className="btn-primary flex-1 py-3"
           >
             {loading ? 'Generating...' : 'Next'}
           </button>
