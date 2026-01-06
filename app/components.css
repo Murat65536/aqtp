@@ -1,3 +1,11 @@
+@import "tailwindcss";
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background-color: rgb(17 24 39); /* Match dark theme start color */
+}
+
 /* Buttons */
 .btn-primary {
     padding: 0.5rem 1rem;
@@ -374,12 +382,12 @@
   
   /* Layout */
   .page-container {
-    min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
     background: linear-gradient(to bottom right, rgb(239 246 255), rgb(224 231 255));
     padding: 3rem 1rem;
     position: relative;
-  }
-  
+  }  
   :is(.dark .page-container) {
     background: linear-gradient(to bottom right, rgb(17 24 39), rgb(31 41 55));
   }
