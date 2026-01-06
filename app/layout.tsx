@@ -1,5 +1,3 @@
-'use client';
-
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -13,6 +11,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata = {
+  title: "NAQT Quiz App",
+  description: "A quiz application using NAQT topics and LLMs",
+};
 
 export default function RootLayout({
   children,

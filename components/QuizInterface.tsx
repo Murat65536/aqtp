@@ -88,7 +88,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
 
       setCheckResult(result);
       setAnsweredCount((prev) => prev + 1);
-      if (result) setCorrectCount((prev) => prev + 1);
+      if (result.correct) setCorrectCount((prev) => prev + 1);
     } catch (error: any) {
       setQuestionError('Failed to check answer: ' + error.message);
     } finally {
@@ -219,6 +219,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
             onChange={(e) => setUserAnswer(e.target.value)}
             placeholder="Type your answer here..."
             className="textarea"
+            autoComplete="off"
+            spellCheck="false"
           />
         </div>
 

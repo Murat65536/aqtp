@@ -277,11 +277,11 @@
     padding: 1rem;
     border-radius: 0.5rem;
     background-color: rgb(254 243 199);
-    border: 2px solid rgb(249 115 22);
+    border: 2px solid rgb(40 0 0);
   }
   
   :is(.dark .result-incorrect) {
-    background-color: rgb(124 45 18);
+    background-color: rgb(100 0 0);
   }
   
   .result-title-correct {

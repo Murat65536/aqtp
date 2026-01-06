@@ -3,14 +3,13 @@
 import { useState, useEffect } from 'react';
 import TopicSelector from '@/components/TopicSelector';
 import QuizInterface from '@/components/QuizInterface';
+import { fetchAvailableModels, DEFAULT_OPENAI_MODEL } from '@/lib/llm';
 
 interface Topic {
   title: string;
   url: string;
   content: string;
 }
-
-import { fetchAvailableModels, DEFAULT_OPENAI_MODEL } from '@/lib/llm';
 
 // Storage keys
 const STORAGE_KEYS = {

@@ -39,12 +39,16 @@ Given background information, write a quiz bowl question following these rules:
 - Write as ONE continuous paragraph
 - NEVER reveal the answer directly in your clues
 - Do NOT write multiple questions - only ONE question at the very end
+- Output EXACTLY two lines:
+  Line 1: The question text
+  Line 2: The answer
+  Do NOT include labels like "Question:" or "Answer:".
 
-Here are a few examples:
+Examples:
 This mythological woman mothered a child with a man who was later killed using a lance tipped with stingray poison by that child. This person advised her lover to sail to the underworld to meet the ghost of the blind seer Tiresias. Telegonus was a son of this resident of the island Aeaea, whose magic was countered by the herb moly. The members of Odysseus's crew were turned into swine by what sorceress?
 Circe
 
-Question: Biologist Rudolf Virchow legendarily offered to "duel" this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
+Biologist Rudolf Virchow legendarily offered to "duel" this man by eating poisoned sausages. This man engineered the Second Schleswig War to seize territory from Denmark. With his subordinate Adalbert Falk, this man tried to minimize Catholic influence in his country through the Kulturkampf. A war this man caused with France led Wilhelm I to be crowned as kaiser. What Prussian chancellor unified Germany?
 Otto von Bismarck`
     },
     {
@@ -62,39 +66,23 @@ ${context}`,
     temperature: 0,
     presence_penalty: 0.6,
     frequency_penalty: 0.3,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "question_response",
-        strict: true,
-        schema: {
-          type: "object",
-          properties: {
-            question: {
-              type: "string",
-              description: "The quiz bowl question with descriptive clues"
-            },
-            answer: {
-              type: "string",
-              description: "The correct answer to the question"
-            }
-          },
-          required: ["question", "answer"],
-          additionalProperties: false
-        }
-      }
-    }
   });
 
-  const response = JSON.parse(completion.choices[0].message.content || "{}");
-  
-  if (!response.question || !response.answer) {
-    throw new Error("Failed to parse question response");
+  const content = completion.choices[0].message.content?.trim() || "";
+  const lines = content.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  if (lines.length < 2) {
+    console.error("Invalid response format:", content);
+    throw new Error("Failed to parse response: Expected at least 2 lines (Question and Answer)");
   }
 
+  // Assume first line is question, last line is answer (handling potential extra newlines)
+  const question = lines[0];
+  const answer = lines[lines.length - 1];
+
   return {
-    question: response.question,
-    answer: response.answer,
+    question,
+    answer,
     context,
   };
 }
@@ -136,7 +124,9 @@ export async function checkAnswer(
 Guidelines for grading:
 - Spelling doesn't matter as long as it's legible
 - Accept different phrasings that convey the same meaning
-- If the answer is a person, last names are acceptable`
+- If the answer is a person, last names are acceptable
+
+Reply with ONLY the word "YES" if the answer is correct, or "NO" if it is incorrect.`
     },
     {
       role: 'user',
@@ -156,33 +146,12 @@ Is the user's answer correct?`
     messages,
     max_tokens: 64,
     temperature: 0.0,
-    response_format: {
-      type: "json_schema",
-      json_schema: {
-        name: "validation_response",
-        strict: true,
-        schema: {
-          type: "object",
-          properties: {
-            correct: {
-              type: "boolean",
-              description: "Whether the user's answer is correct"
-            }
-          },
-          required: ["correct"],
-          additionalProperties: false
-        }
-      }
-    }
   });
 
-  const response = JSON.parse(completion.choices[0].message.content || "{}");
-  
-  if (typeof response.correct !== "boolean") {
-    throw new Error("Failed to parse validation response");
-  }
+  const content = completion.choices[0].message.content?.trim().toUpperCase() || "";
+  const correct = content.includes("YES");
 
   return {
-    correct: response.correct
+    correct
   };
 }
