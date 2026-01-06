@@ -382,7 +382,7 @@ html, body {
   
   /* Layout */
   .page-container {
-    height: 100vh;
+    height: 100dvh;
     overflow-y: auto;
     background: linear-gradient(to bottom right, rgb(239 246 255), rgb(224 231 255));
     padding: 3rem 1rem;

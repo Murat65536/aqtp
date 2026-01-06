@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "generate-topics": "tsx scripts/generate-topics.ts",
-    "prebuild": "npm run generate-topics",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
