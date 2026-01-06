@@ -389,7 +389,7 @@ html, body {
     position: relative;
   }  
   :is(.dark .page-container) {
-    background: linear-gradient(to bottom right, rgb(17 24 39), rgb(31 41 55));
+    background: rgb(17 24 39);
   }
   
   @media (min-width: 640px) {
