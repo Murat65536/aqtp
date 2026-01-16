@@ -231,7 +231,7 @@
     right: 0;
     height: 100%;
     width: 20rem;
-    background-color: rgb(17 24 39);
+    background-color: white;
     box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
     z-index: 40;
     display: flex;
@@ -239,6 +239,10 @@
     padding: 2rem;
     transition: transform 0.3s;
     overflow-y: auto;
+  }
+
+  :is(.dark .sidebar) {
+    background-color: rgb(17 24 39);
   }
   
   .sidebar-close-btn {
@@ -250,6 +254,10 @@
   }
   
   .sidebar-close-btn:hover {
+    color: rgb(17 24 39);
+  }
+
+  :is(.dark .sidebar-close-btn:hover) {
     color: white;
   }
   
@@ -335,7 +343,7 @@
   /* Loading States */
   .spinner {
     animation: spin 1s linear infinite;
-    border-radius: 9999px;
+    border-radius: 50%;
     height: 3rem;
     width: 3rem;
     border-width: 2px;
@@ -561,9 +569,17 @@
   .security-notice {
     margin-top: 1.5rem;
     padding: 1rem;
-    background-color: rgb(31 41 55);
+    background-color: rgb(249 250 251);
     border-radius: 0.5rem;
-    border: 1px solid rgb(55 65 81);
+    border: 1px solid rgb(229 231 235);
+    color: rgb(55 65 81);
+    font-size: 0.875rem;
+  }
+
+  :is(.dark .security-notice) {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+    color: rgb(209 213 219);
   }
   
   .select {
@@ -571,13 +587,19 @@
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
-    background-color: rgb(31 41 55);
-    color: white;
+    background-color: white;
+    color: rgb(17 24 39);
   }
   
   .select:focus {
     border-color: rgb(59 130 246);
     outline: none;
+  }
+
+  :is(.dark .select) {
+    background-color: rgb(31 41 55);
+    color: white;
+    border-color: rgb(55 65 81);
   }
   
   .label {
