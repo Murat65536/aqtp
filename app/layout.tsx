@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "NAQT Quiz App",
-  description: "A quiz application using NAQT topics and LLMs",
+  description: "A quiz application using NAQT",
 };
 
 export default function RootLayout({
