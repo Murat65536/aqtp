@@ -22,7 +22,7 @@ const STORAGE_KEYS = {
 const BASE_URL_PROVIDERS = [
   { name: 'GitHub', url: 'https://models.inference.ai.azure.com' },
   { name: 'OpenAI', url: 'https://api.openai.com/v1' },
-  { name: 'Custom', url: 'custom' },
+  { name: 'Custom', url: '' },
 ];
 
 export default function Home() {
