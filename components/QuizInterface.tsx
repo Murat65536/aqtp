@@ -288,7 +288,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
                 </svg>
               </button>
               
-              <h2 className="heading-medium mb-6 pr-8">Context & Explanation</h2>
+              <h2 className="heading-medium mb-6 pr-8">Context</h2>
               
               <div className="flex-1 overflow-y-auto pr-2">
                 <div className="context-box">
