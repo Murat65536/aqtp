@@ -1,10 +1,6 @@
 @import "tailwindcss";
 
-html, body {
-  height: 100%;
-  overflow: hidden;
-  background-color: rgb(17 24 39); /* Match dark theme start color */
-}
+/* html, body styles removed to allow globals.css to handle them */
 
 /* Buttons */
 .btn-primary {
@@ -150,12 +146,19 @@ html, body {
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
-    color: white;
+    background-color: white;
+    color: rgb(17 24 39);
   }
   
   .search-input:focus {
     border-color: rgb(59 130 246);
     outline: none;
+  }
+  
+  :is(.dark .search-input) {
+    background-color: rgb(31 41 55);
+    color: white;
+    border-color: rgb(55 65 81);
   }
   
   /* Cards and Containers */
