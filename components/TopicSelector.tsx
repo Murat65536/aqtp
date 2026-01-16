@@ -50,7 +50,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
 
   if (loading) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center p-4">
         <div className="spinner mb-4 border-blue-500 border-t-transparent"></div>
         <p className="text-muted text-foreground">Loading NAQT topics...</p>
       </div>
@@ -59,7 +59,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
 
   if (error) {
     return (
-      <div className="text-center p-8">
+      <div className="text-center p-4">
         <div className="error-box inline-block">
           <p className="font-bold">Error loading topics</p>
           <p className="text-sm">{error}</p>
@@ -71,7 +71,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
 
   return (
     <>
-      <div className="mb-6 flex justify-center">
+      <div className="mb-4 flex justify-center">
         <input
           type="text"
           value={search}
@@ -82,7 +82,7 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
       </div>
       <div className="topics-scroll-container bg-white/5 dark:bg-black/20">
         {filteredTopics.length === 0 ? (
-           <div className="text-center p-8 text-muted">No topics found matching "{search}"</div>
+           <div className="text-center p-4 text-muted">No topics found matching "{search}"</div>
         ) : (
           <div className="topics-grid">
             {filteredTopics.map((topic, index) => (

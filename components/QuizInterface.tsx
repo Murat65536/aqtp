@@ -123,7 +123,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
       <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="btn-link mb-6"
+          className="btn-link mb-2"
         >
           ← Back to Topics
         </button>
@@ -169,7 +169,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
       <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="btn-link mb-6"
+          className="btn-link mb-2"
         >
           ← Back to Topics
         </button>
@@ -185,7 +185,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
     <div className="quiz-wrapper">
       <button
         onClick={onBack}
-        className="btn-link mb-6"
+        className="btn-link mb-2"
       >
         ← Back to Topics
       </button>

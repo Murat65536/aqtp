@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import TopicSelector from '@/components/TopicSelector';
 import QuizInterface from '@/components/QuizInterface';
 import { fetchAvailableModels, DEFAULT_OPENAI_MODEL } from '@/lib/llm';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 interface Topic {
   title: string;
@@ -130,13 +131,16 @@ export default function Home() {
 
   return (
     <div className="page-container">
-      {/* Options Button */}
-      <button
-        className="options-btn"
-        onClick={() => setShowOptions((v) => !v)}
-      >
-        Options
-      </button>
+      {/* Header with global controls */}
+      <header className="flex justify-between items-center mb-4 px-2">
+        <ThemeToggle />
+        <button
+          className="btn-primary py-2 px-4 text-sm"
+          onClick={() => setShowOptions((v) => !v)}
+        >
+          Options
+        </button>
+      </header>
 
       {/* Sidebar */}
       {showOptions && (
@@ -251,7 +255,6 @@ export default function Home() {
       )}
 
       <div className="content-wrapper">
-        <div className="mb-8 flex flex-col items-center"></div>
         {selectedTopic ? (
           <QuizInterface
             topic={selectedTopic}

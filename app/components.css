@@ -165,7 +165,7 @@
     background-color: white;
     border-radius: 0.5rem;
     box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    padding: 2rem;
+    padding: 1rem;
   }
   
   :is(.dark .card) {
@@ -173,7 +173,7 @@
   }
   
   .card-small {
-    padding: 1rem;
+    padding: 0.75rem;
     background-color: white;
     border: 2px solid rgb(229 231 235);
     border-radius: 0.5rem;
@@ -192,7 +192,7 @@
   }
   
   .info-box {
-    padding: 1rem;
+    padding: 0.75rem;
     background-color: rgb(249 250 251);
     border-radius: 0.5rem;
     color: rgb(31 41 55);
@@ -205,9 +205,9 @@
   
   .question-box {
     background-color: rgb(239 246 255);
-    padding: 1.5rem;
+    padding: 0.75rem;
     border-radius: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
   
   :is(.dark .question-box) {
@@ -215,7 +215,7 @@
   }
   
   .context-box {
-    padding: 1.5rem;
+    padding: 0.75rem;
     background-color: rgb(239 246 255);
     border-radius: 0.5rem;
   }
@@ -236,18 +236,18 @@
     z-index: 40;
     display: flex;
     flex-direction: column;
-    padding: 2rem;
+    padding: 1rem;
     transition: transform 0.3s;
     overflow-y: auto;
   }
-
+  
   :is(.dark .sidebar) {
     background-color: rgb(17 24 39);
   }
   
   .sidebar-close-btn {
     align-self: flex-end;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     color: rgb(156 163 175);
     font-size: 1.5rem;
     font-weight: 700;
@@ -259,22 +259,6 @@
 
   :is(.dark .sidebar-close-btn:hover) {
     color: white;
-  }
-  
-  .options-btn {
-    position: fixed;
-    top: 1.5rem;
-    right: 1.5rem;
-    z-index: 50;
-    padding: 0.5rem 1rem;
-    background-color: rgb(37 99 235);
-    color: white;
-    border-radius: 0.25rem;
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  }
-  
-  .options-btn:hover {
-    background-color: rgb(29 78 216);
   }
   
   /* Result Boxes */
@@ -397,7 +381,7 @@
     flex-direction: column;
     overflow: hidden;
     background: linear-gradient(to bottom right, rgb(239 246 255), rgb(224 231 255));
-    padding: 3rem 1rem;
+    padding: 0.5rem;
     position: relative;
   }  
   :is(.dark .page-container) {
@@ -406,7 +390,7 @@
   
   @media (min-width: 640px) {
     .page-container {
-      padding: 3rem 1.5rem;
+      padding: 0.5rem;
     }
   }
   
