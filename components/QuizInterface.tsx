@@ -191,17 +191,6 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
       </button>
 
       <div className="card">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="heading-medium">{topic.title}</h2>
-          <div className="flex flex-col items-end">
-            <span className="text-muted">
-              Question {currentQuestionIndex + 1}
-            </span>
-            <span className="accuracy-badge">
-              Accuracy: {answeredCount > 0 ? ((correctCount / answeredCount) * 100).toFixed(2) : 100}%
-            </span>
-          </div>
-        </div>
 
         {questionError && (
           <div className="error-box">
@@ -209,9 +198,8 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
           </div>
         )}
 
-        <div className="flex-1 flex flex-col min-h-0 mb-8">
-          <div className="question-box flex-1 overflow-y-auto mb-4">
-            <h3 className="heading-section">Question:</h3>
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="question-box flex-1 overflow-y-auto">
             <p className="text-body text-lg">{currentQuestion.question}</p>
           </div>
 
@@ -222,7 +210,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
               onChange={(e) => setUserAnswer(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer()}
               placeholder="Type your answer here..."
-              className="input py-3 text-lg"
+              className="input py-3 text-lg mb-4"
               autoComplete="off"
               spellCheck="false"
               autoFocus
