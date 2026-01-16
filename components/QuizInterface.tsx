@@ -151,10 +151,10 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
             {loading ? (
               <span className="loading-container">
                 <div className="spinner-small"></div>
-                Generating Question with AI...
+                Generating Question
               </span>
             ) : (
-              'Start Quiz'
+              'Generate Question'
             )}
           </button>
         </div>
@@ -175,7 +175,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
         </button>
         <div className="card text-center items-center justify-center">
           <div className="spinner mb-4"></div>
-          <p className="text-muted">Generating question with AI...</p>
+          <p className="text-muted">Generating question</p>
         </div>
       </div>
     );
