@@ -209,7 +209,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
           </div>
         )}
 
-        <div className="flex-1 flex flex-col min-height-0 mb-8">
+        <div className="flex-1 flex flex-col min-h-0 mb-8">
           <div className="question-box flex-1 overflow-y-auto mb-4">
             <h3 className="heading-section">Question:</h3>
             <p className="text-body text-lg">{currentQuestion.question}</p>
