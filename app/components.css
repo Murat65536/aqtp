@@ -458,10 +458,10 @@
   
   /* Text Styles */
   .heading-large {
-    font-size: 1.875rem;
+    font-size: 1.1em;
     font-weight: 700;
     color: rgb(17 24 39);
-    margin-bottom: 1rem;
+    margin-bottom: 0.5em;
   }
   
   :is(.dark .heading-large) {
