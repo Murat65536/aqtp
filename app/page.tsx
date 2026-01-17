@@ -159,7 +159,7 @@ export default function Home() {
               type="password"
               value={apiKey}
               onChange={e => setApiKey(e.target.value)}
-              className="input mb-2"
+              className="input w-full mb-2"
               autoComplete="off"
               placeholder="Enter your API key"
             />
@@ -187,7 +187,7 @@ export default function Home() {
               id="base-url-provider"
               value={baseUrlProvider}
               onChange={e => setBaseUrlProvider(e.target.value)}
-              className="select mb-2"
+              className="select w-full mb-2"
             >
               {BASE_URL_PROVIDERS.map(p => (
                 <option key={p.name} value={p.name}>{p.name}</option>
@@ -204,7 +204,7 @@ export default function Home() {
                   type="text"
                   value={customBaseUrl}
                   onChange={e => setCustomBaseUrl(e.target.value)}
-                  className="input"
+                  className="input w-full"
                   placeholder="https://api.example.com/v1"
                 />
               </div>
@@ -221,7 +221,7 @@ export default function Home() {
                 id="model"
                 value={model}
                 onChange={e => setModel(e.target.value)}
-                className="select"
+                className="select w-full"
               >
                 {models.map(m => (
                   <option key={m} value={m}>{m}</option>

@@ -102,7 +102,6 @@
   
   /* Input Fields */
   .input {
-    width: 100%;
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
@@ -121,7 +120,6 @@
   }
   
   .textarea {
-    width: 100%;
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
@@ -141,7 +139,6 @@
   }
   
   .search-input {
-    width: 100%;
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
@@ -569,7 +566,6 @@
   }
   
   .select {
-    width: 100%;
     padding: 0.5rem;
     border: 2px solid rgb(209 213 219);
     border-radius: 0.5rem;
