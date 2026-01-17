@@ -27,8 +27,8 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
     
     const $ = cheerio.load(response.data);
     const topics: Topic[] = [];
-
     const topicPromises: Promise<void>[] = [];
+
     $('a[href*="/you-gotta-know/"]').each((_, element) => {
       const href = $(element).attr('href');
       const text = $(element).text().trim();
@@ -39,16 +39,19 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
         if (text) {
           topicPromises.push(
             scrapeTopicContent(fullUrl).then(content => {
-              topics.push({
-                title: text.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()),
-                content: content
-              });
+              if (content) {
+                topics.push({
+                  title: text.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()),
+                  content: content
+                });
+              }
             })
           );
         }
       }
     });
 
+    console.log(`Found ${topicPromises.length} topics. Scraping in parallel...`);
     await Promise.all(topicPromises);
 
     return topics;
@@ -58,12 +61,13 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
   }
 }
 
-export async function scrapeTopicContent(url: string): Promise<string> {
+export async function scrapeTopicContent(url: string, retries = 2): Promise<string> {
   try {
     const response = await axios.get(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
+      },
+      timeout: 10000 // 10s timeout
     });
     
     const $ = cheerio.load(response.data);
@@ -83,7 +87,15 @@ export async function scrapeTopicContent(url: string): Promise<string> {
     // Join all items with double newlines
     return items.join('\n\n');
   } catch (error) {
-    console.error('Error scraping topic content:', error);
+    if (retries > 0) {
+      console.warn(`Error scraping ${url}. Retrying... (${retries} attempts left)`);
+      // Exponential backoff: 1s, 2s, etc.
+      const delay = (3 - retries) * 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return scrapeTopicContent(url, retries - 1);
+    }
+    
+    console.error(`Failed to scrape topic content after retries: ${url}`, error instanceof Error ? error.message : error);
     return '';
   }
 }
