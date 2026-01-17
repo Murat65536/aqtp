@@ -78,7 +78,7 @@ export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSel
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search topics..."
-          className="search-input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 flex-1"
+          className="search-input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 flex-1 min-w-0"
         />
         <button
           onClick={onShowOptions}
