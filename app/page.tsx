@@ -131,17 +131,7 @@ export default function Home() {
 
   return (
     <div className="page-container">
-      {/* Header with global controls */}
-      <header className="flex justify-between items-center mb-4 px-2">
-        <ThemeToggle />
-        <button
-          className="btn-primary py-2 px-4 text-sm"
-          onClick={() => setShowOptions((v) => !v)}
-        >
-          Options
-        </button>
-      </header>
-
+      
       {/* Sidebar */}
       {showOptions && (
         <div className="sidebar">
@@ -153,6 +143,12 @@ export default function Home() {
             ×
           </button>
           
+          {/* Theme Toggle Section */}
+          <div className="mb-6 flex items-center justify-between">
+            <span className="label mb-0">Theme</span>
+            <ThemeToggle />
+          </div>
+
           {/* API Key Section */}
           <div className="mb-6">
             <label htmlFor="api-key" className="label">
@@ -262,9 +258,13 @@ export default function Home() {
             apiKey={apiKey}
             model={model}
             baseUrl={baseUrlProvider === 'Custom' ? customBaseUrl : BASE_URL_PROVIDERS.find(p => p.name === baseUrlProvider)?.url}
+            onShowOptions={() => setShowOptions(true)}
           />
         ) : (
-          <TopicSelector onTopicSelect={setSelectedTopic} />
+          <TopicSelector 
+            onTopicSelect={setSelectedTopic} 
+            onShowOptions={() => setShowOptions(true)}
+          />
         )}
       </div>
     </div>

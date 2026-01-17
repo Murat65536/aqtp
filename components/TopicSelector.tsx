@@ -10,9 +10,10 @@ interface Topic {
 
 interface TopicSelectorProps {
   onTopicSelect: (topic: Topic) => void;
+  onShowOptions: () => void;
 }
 
-export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
+export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSelectorProps) {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,14 +72,20 @@ export default function TopicSelector({ onTopicSelect }: TopicSelectorProps) {
 
   return (
     <>
-      <div className="mb-4 flex justify-center">
+      <div className="mb-4 flex gap-4">
         <input
           type="text"
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search topics..."
-          className="search-input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700"
+          className="search-input bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-700 flex-1"
         />
+        <button
+          onClick={onShowOptions}
+          className="btn-primary py-2 px-4 whitespace-nowrap"
+        >
+          Options
+        </button>
       </div>
       <div className="topics-scroll-container bg-white/5 dark:bg-black/20">
         {filteredTopics.length === 0 ? (

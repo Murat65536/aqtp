@@ -23,9 +23,10 @@ interface QuizInterfaceProps {
   apiKey: string;
   model: string;
   baseUrl?: string;
+  onShowOptions: () => void;
 }
 
-export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }: QuizInterfaceProps) {
+export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl, onShowOptions }: QuizInterfaceProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -67,8 +68,12 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
     }
   };
 
-  const handleCheckAnswer = async () => {
+  const handleSubmit = async () => {
     if (!userAnswer.trim()) {
+      // Skip logic
+      setSkipped(true);
+      setCheckResult(null);
+      setAnsweredCount((prev) => prev + 1);
       return;
     }
 
@@ -110,20 +115,12 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
     }
   };
 
-  const handlePreviousQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1);
-      setUserAnswer('');
-      setCheckResult(null);
-    }
-  };
-
   if (!quizStarted) {
     return (
       <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="btn-link mb-2"
+          className="btn-secondary mb-4 py-2 px-4 text-sm inline-flex items-center self-start"
         >
           ← Back to Topics
         </button>
@@ -169,7 +166,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
       <div className="quiz-wrapper">
         <button
           onClick={onBack}
-          className="btn-link mb-2"
+          className="btn-secondary mb-4 py-2 px-4 text-sm inline-flex items-center self-start"
         >
           ← Back to Topics
         </button>
@@ -185,7 +182,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
     <div className="quiz-wrapper">
       <button
         onClick={onBack}
-        className="btn-link mb-2"
+        className="btn-secondary mb-4 py-2 px-4 text-sm inline-flex items-center self-start"
       >
         ← Back to Topics
       </button>
@@ -204,46 +201,39 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
           </div>
 
           {!checkResult && !skipped && (
-            <input
-              type="text"
-              value={userAnswer}
-              onChange={(e) => setUserAnswer(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleCheckAnswer()}
-              placeholder="Type your answer here..."
-              className="input py-3 text-lg mb-4"
-              autoComplete="off"
-              spellCheck="false"
-              autoFocus
-            />
-          )}
-        </div>
-
-        {/* Check Answer and Skip Buttons OR Result Box */}
-        <div className="mb-4">
-          {(!checkResult && !skipped) ? (
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-4">
+              <input
+                type="text"
+                value={userAnswer}
+                onChange={(e) => setUserAnswer(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                placeholder="Type your answer here..."
+                className="input py-3 text-lg flex-1"
+                autoComplete="off"
+                spellCheck="false"
+                autoFocus
+              />
               <button
-                onClick={handleCheckAnswer}
-                disabled={checking || !userAnswer.trim()}
-                className="btn-check flex-1 py-3"
+                onClick={handleSubmit}
+                disabled={checking}
+                className="btn-check py-3 px-8"
               >
                 {checking ? (
                   <span className="loading-container">
                     <div className="spinner-small"></div>
-                    Checking Answer...
+                    Checking...
                   </span>
                 ) : (
-                  'Check Answer'
+                  'Submit'
                 )}
               </button>
-              <button
-                onClick={() => { setSkipped(true); setCheckResult(null); setAnsweredCount((prev) => prev + 1); }}
-                className="btn-skip flex-1 py-3"
-              >
-                Skip
-              </button>
             </div>
-          ) : (
+          )}
+        </div>
+
+        {/* Result Box */}
+        <div className="mb-4">
+          {(checkResult || skipped) && (
             <div className={skipped ? 'result-incorrect' : (checkResult?.correct ? 'result-correct' : 'result-incorrect')}>
               <h3 className={skipped ? 'result-title-incorrect' : (checkResult?.correct ? 'result-title-correct' : 'result-title-incorrect')}>
                 {skipped ? 'Skipped' : (checkResult?.correct ? 'Correct' : 'Incorrect')}
@@ -261,14 +251,28 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
           )}
         </div>
 
-        {/* Context Button after checking or skipping */}
+        {/* Context and Next Buttons after checking or skipping */}
         {(checkResult || skipped) && (
-          <div className="mb-6">
+          <div className="flex gap-4 mb-4">
             <button
               onClick={() => setShowContextPopup(true)}
-              className="btn-secondary w-full py-3"
+              className="btn-secondary flex-1 py-3"
             >
               Show Context
+            </button>
+            <button
+              onClick={handleNextQuestion}
+              disabled={loading}
+              className="btn-primary flex-1 py-3"
+            >
+              {loading ? (
+                <span className="loading-container">
+                  <div className="spinner-small"></div>
+                  Generating...
+                </span>
+              ) : (
+                'Next Question'
+              )}
             </button>
           </div>
         )}
@@ -308,24 +312,6 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl }:
             </div>
           </div>
         )}
-
-        {/* Navigation Buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0}
-            className="btn-secondary flex-1 py-3"
-          >
-            Previous
-          </button>
-          <button
-            onClick={handleNextQuestion}
-            disabled={loading || (!skipped && checkResult === null)}
-            className="btn-primary flex-1 py-3"
-          >
-            {loading ? 'Generating...' : 'Next'}
-          </button>
-        </div>
       </div>
     </div>
   );
