@@ -140,7 +140,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl, o
           <div className="flex-1 overflow-y-auto pr-2">
             <div className="context-box">
               <h3 className="heading-section">Context:</h3>
-              <p className="text-body whitespace-pre-wrap break-words">{currentQuestion.context}</p>
+              <p className="text-body whitespace-pre-wrap wrap-break-word">{currentQuestion.context}</p>
             </div>
           </div>
           
@@ -171,7 +171,7 @@ export default function QuizInterface({ topic, onBack, apiKey, model, baseUrl, o
           <h2 className="heading-large">{topic.title}</h2>
 
           <div className="info-box mb-6 flex-1 overflow-y-auto">
-            <p className="text-body whitespace-pre-wrap break-words">
+            <p className="text-body whitespace-pre-wrap wrap-break-word">
               {topic.content}
             </p>
           </div>
