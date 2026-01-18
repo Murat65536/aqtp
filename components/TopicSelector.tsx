@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 interface Topic {
   title: string;
   url: string;
   content: string;
+  category: string;
+}
+
+interface CategoryData {
+  categories: string[];
+  topics: Topic[];
 }
 
 interface TopicSelectorProps {
@@ -14,10 +20,11 @@ interface TopicSelectorProps {
 }
 
 export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSelectorProps) {
-  const [topics, setTopics] = useState<Topic[]>([]);
+  const [data, setData] = useState<CategoryData>({ categories: [], topics: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('All');
 
   useEffect(() => {
     async function fetchTopics() {
@@ -33,8 +40,13 @@ export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSel
 
         if (!response.ok) throw new Error(`Failed to fetch topics: ${response.status} ${response.statusText}`);
         
-        const data = await response.json();
-        setTopics(data);
+        const json = await response.json();
+        // Handle both old format (array) and new format (object with categories)
+        if (Array.isArray(json)) {
+          setData({ categories: [], topics: json });
+        } else {
+          setData(json);
+        }
       } catch (err) {
         console.error('Topic fetch error:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
@@ -45,9 +57,15 @@ export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSel
     fetchTopics();
   }, []);
 
-  const filteredTopics = topics.filter(topic =>
-    topic.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredTopics = useMemo(() => {
+    return data.topics.filter(topic => {
+      const matchesSearch = topic.title.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = selectedCategory === 'All' || topic.category === selectedCategory;
+      return matchesSearch && matchesCategory;
+    });
+  }, [data.topics, search, selectedCategory]);
+
+  const allCategories = useMemo(() => ['All', ...data.categories], [data.categories]);
 
   if (loading) {
     return (
@@ -87,6 +105,23 @@ export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSel
           Options
         </button>
       </div>
+      {data.categories.length > 0 && (
+        <div className="mb-4 flex flex-wrap gap-2">
+          {allCategories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                selectedCategory === category
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
+      )}
       <div className="topics-scroll-container bg-white/5 dark:bg-black/20">
         {filteredTopics.length === 0 ? (
            <div className="text-center p-4 text-muted">No topics found matching "{search}"</div>
@@ -101,6 +136,11 @@ export default function TopicSelector({ onTopicSelect, onShowOptions }: TopicSel
                 <h3 className="font-semibold text-gray-900 dark:text-gray-100 line-clamp-2 text-left">
                   {topic.title}
                 </h3>
+                {topic.category && (
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1 block text-left">
+                    {topic.category}
+                  </span>
+                )}
               </button>
             ))}
           </div>

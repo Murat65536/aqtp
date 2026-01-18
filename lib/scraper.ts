@@ -4,10 +4,16 @@ import * as cheerio from 'cheerio';
 export interface Topic {
   title: string;
   content: string;
+  category: string;
+}
+
+export interface CategoryData {
+  categories: string[];
+  topics: Topic[];
 }
 
 const BASE_URL = 'https://www.naqt.com';
-const YGK_URL = `${BASE_URL}/you-gotta-know/`;
+const YGK_CATEGORY_URL = `${BASE_URL}/you-gotta-know/by-category.jsp`;
 const MIN_CONTENT_LENGTH = 100;
 
 // More realistic browser headers to avoid Cloudflare blocking
@@ -32,40 +38,59 @@ function cleanText(text: string): string {
   return text.trim();
 }
 
-export async function scrapeNAQTTopics(): Promise<Topic[]> {
+export async function scrapeNAQTTopics(): Promise<CategoryData> {
   try {
-    const response = await axios.get(YGK_URL, {
+    const response = await axios.get(YGK_CATEGORY_URL, {
       headers: BROWSER_HEADERS,
       timeout: 30000
     });
     
     const $ = cheerio.load(response.data);
     const topics: Topic[] = [];
-    const topicPromises: Promise<void>[] = [];
+    const categories: string[] = [];
+    const topicPromises: { promise: Promise<string>; title: string; category: string; url: string }[] = [];
 
-    $('a[href*="/you-gotta-know/"]').each((_, element) => {
-      const href = $(element).attr('href');
-      const text = $(element).text().trim();
+    let currentCategory = '';
+
+    // Process the page content - h2 elements are category headings
+    $('h2, ul li a').each((_, element) => {
+      const tagName = element.tagName.toLowerCase();
       
-      if (href && href.match(/\/you-gotta-know\/.*\.html/)) {
-        const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
+      if (tagName === 'h2') {
+        const categoryText = $(element).text().trim();
+        // Skip "By Publication Date" as it's not a real category
+        if (categoryText && categoryText !== 'By Publication Date') {
+          currentCategory = categoryText;
+          if (!categories.includes(currentCategory)) {
+            categories.push(currentCategory);
+          }
+        }
+      } else if (tagName === 'a' && currentCategory) {
+        const href = $(element).attr('href');
+        const text = $(element).text().trim();
         
-        if (text) {
-          topicPromises.push(
-            scrapeTopicContent(fullUrl).then(content => {
-              if (content) {
-                topics.push({
-                  title: text.replace(/\w\S*/g, text => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()),
-                  content: content
-                });
-              }
-            })
-          );
+        if (href && href.match(/\/you-gotta-know\/.*\.html/)) {
+          const fullUrl = href.startsWith('http') ? href : `${BASE_URL}${href}`;
+          
+          // Extract title from "You Gotta Know…these [title]" format
+          const titleMatch = text.match(/You Gotta Know…these (.+)/i);
+          const title = titleMatch 
+            ? titleMatch[1].replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substring(1).toLowerCase())
+            : text.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.substring(1).toLowerCase());
+          
+          if (title) {
+            topicPromises.push({
+              promise: scrapeTopicContent(fullUrl),
+              title,
+              category: currentCategory,
+              url: fullUrl
+            });
+          }
         }
       }
     });
 
-    console.log(`Found ${topicPromises.length} topics. Scraping in parallel...`);
+    console.log(`Found ${topicPromises.length} topics across ${categories.length} categories. Scraping in parallel...`);
     
     // Process topics in smaller batches with delays to avoid rate limiting
     const BATCH_SIZE = 5;
@@ -73,7 +98,18 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
     
     for (let i = 0; i < topicPromises.length; i += BATCH_SIZE) {
       const batch = topicPromises.slice(i, i + BATCH_SIZE);
-      await Promise.all(batch);
+      const results = await Promise.all(batch.map(t => t.promise));
+      
+      results.forEach((content, idx) => {
+        if (content) {
+          const topicInfo = batch[idx];
+          topics.push({
+            title: topicInfo.title,
+            content,
+            category: topicInfo.category
+          });
+        }
+      });
       
       // Add delay between batches (except for the last batch)
       if (i + BATCH_SIZE < topicPromises.length) {
@@ -81,10 +117,10 @@ export async function scrapeNAQTTopics(): Promise<Topic[]> {
       }
     }
 
-    return topics;
+    return { categories, topics };
   } catch (error) {
     console.error('Error scraping NAQT topics:', error);
-    return [];
+    return { categories: [], topics: [] };
   }
 }
 
@@ -97,7 +133,7 @@ export async function scrapeTopicContent(url: string, retries = 2): Promise<stri
     const response = await axios.get(url, {
       headers: {
         ...BROWSER_HEADERS,
-        'Referer': YGK_URL // Set referer to the main page
+        'Referer': YGK_CATEGORY_URL // Set referer to the category page
       },
       timeout: 15000 // 15s timeout
     });
